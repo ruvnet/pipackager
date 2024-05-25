@@ -1,7 +1,7 @@
 import os
+import shutil
 import subprocess
 import sys
-
 
 def show_menu():
     clear()
@@ -70,9 +70,20 @@ def clear():
 
 
 def clean_dists():
-    subprocess.run(["rm", "-rf", "dist/*"])
-    print("🗑️  Old distributions cleaned.")
-
+    dist_dir = 'dist'
+    if os.path.exists(dist_dir):
+        for filename in os.listdir(dist_dir):
+            file_path = os.path.join(dist_dir, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print(f'Failed to delete {file_path}. Reason: {e}')
+        print("🗑️  Old distributions cleaned.")
+    else:
+        print(f'No dist directory found at {dist_dir}')
 
 def build_dists():
     subprocess.run([sys.executable, "setup.py", "sdist", "bdist_wheel"])
