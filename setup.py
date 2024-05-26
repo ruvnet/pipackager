@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="pipackager",
-    version="0.3.0",
+    version="0.4.4",
     packages=find_packages(),
     install_requires=[
         "twine",

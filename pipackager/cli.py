@@ -7,17 +7,18 @@ def show_menu():
     clear()
     print("***********************************")
     print("*        PyPI Package Manager     *")
+    print("*              by rUv             *")
     print("***********************************")
-    print("1. Clean old distributions")
-    print("2. Build new distributions")
-    print("3. Upload distributions to PyPI")
-    print("4. Increment version number (patch)")
-    print("5. Increment version number (minor)")
-    print("6. Increment version number (major)")
-    print("7. Advanced options")
-    print("8. Help")
-    print("9. Exit")
-
+    print("1. Initial Setup")
+    print("2. Clean old distributions")
+    print("3. Build new distributions")
+    print("4. Upload distributions to PyPI")
+    print("5. Increment version number (patch)")
+    print("6. Increment version number (minor)")
+    print("7. Increment version number (major)")
+    print("8. Advanced options")
+    print("9. Help")
+    print("10. Exit")
 
 def show_advanced_menu():
     clear()
@@ -29,7 +30,8 @@ def show_advanced_menu():
     print("3. Lint and format code")
     print("4. Check and update dependencies")
     print("5. Generate start command")
-    print("6. Back to main menu")
+    print("6. Reconfigure setup.py")
+    print("7. Back to main menu")
 
 
 def show_help():
@@ -64,10 +66,93 @@ def show_help():
     print("")
     input("Press any key to return to the main menu...")
 
+def initial_setup():
+    check_github_workflow()
+    check_setup_py()
+
+def check_github_workflow():
+    workflow_path = '.github/workflows/python-package.yml'
+    if not os.path.exists(workflow_path):
+        print(f"⚠️  GitHub workflow not found at {workflow_path}. Creating...")
+        create_update_workflow()
+    else:
+        print(f"✅ GitHub workflow already exists at {workflow_path}")
+
+def check_setup_py():
+    setup_path = 'setup.py'
+    if not os.path.exists(setup_path):
+        print(f"⚠️  setup.py not found. Creating...")
+        create_setup_py()
+    else:
+        print(f"✅ setup.py already exists")
+
+def create_setup_py():
+    name = input("Enter the package name: ")
+    version = input("Enter the package version (e.g., 0.1.0): ")
+    author = input("Enter the author's name: ")
+    author_email = input("Enter the author's email: ")
+    description = input("Enter the package description: ")
+    url = input("Enter the package URL: ")
+
+    setup_contents = f"""
+from setuptools import setup, find_packages
+from pathlib import Path
+
+# Read the contents of README.md
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
+setup(
+    name='{name}',
+    version='{version}',
+    packages=find_packages(),
+    install_requires=[
+        'twine',
+        'setuptools',
+        'wheel',
+        'flake8',
+        'black',
+        'pytest',
+        'pip-upgrader',
+    ],
+    entry_points={{
+        'console_scripts': [
+            '{name}={name}.cli:main',
+        ],
+    }},
+    author='{author}',
+    author_email='{author_email}',
+    description='{description}',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='{url}',
+    license='Apache License 2.0',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+    ],
+)
+"""
+    with open('setup.py', 'w') as file:
+        file.write(setup_contents)
+    print(f"✅ setup.py created")
+
+def reconfigure_setup_py():
+    if os.path.exists('setup.py'):
+        os.remove('setup.py')
+    create_setup_py()
+    print(f"✅ setup.py reconfigured")
+
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
-
 
 def clean_dists():
     dist_dir = 'dist'
@@ -81,6 +166,21 @@ def clean_dists():
                     shutil.rmtree(file_path)
             except Exception as e:
                 print(f'Failed to delete {file_path}. Reason: {e}')
+        
+        # Retry to ensure all files are deleted
+        remaining_files = os.listdir(dist_dir)
+        if remaining_files:
+            print("Retrying deletion of remaining files...")
+            for filename in remaining_files:
+                file_path = os.path.join(dist_dir, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print(f'Failed to delete {file_path} on retry. Reason: {e}')
+        
         print("🗑️  Old distributions cleaned.")
     else:
         print(f'No dist directory found at {dist_dir}')
@@ -88,7 +188,8 @@ def clean_dists():
 def build_dists():
     subprocess.run([sys.executable, "setup.py", "sdist", "bdist_wheel"])
     print("📦 New distributions built.")
-
+    subprocess.run([sys.executable, "-m", "pip", "install", "-e", "."])
+    print("📦 Package installed in editable mode.")
 
 def upload_dists():
     subprocess.run(["twine", "upload", "dist/*"])
@@ -299,23 +400,25 @@ def main_menu():
         show_menu()
         choice = input("Select an option: ")
 
-        if choice == "1":
+        if choice == '1':
+            initial_setup()
+        elif choice == '2':
             clean_dists()
-        elif choice == "2":
+        elif choice == '3':
             build_dists()
-        elif choice == "3":
+        elif choice == '4':
             upload_dists()
-        elif choice == "4":
-            increment_version("patch")
-        elif choice == "5":
-            increment_version("minor")
-        elif choice == "6":
-            increment_version("major")
-        elif choice == "7":
+        elif choice == '5':
+            increment_version('patch')
+        elif choice == '6':
+            increment_version('minor')
+        elif choice == '7':
+            increment_version('major')
+        elif choice == '8':
             advanced_menu()
-        elif choice == "8":
+        elif choice == '9':
             show_help()
-        elif choice == "9":
+        elif choice == '10':
             print("Goodbye! 👋")
             break
         else:
@@ -323,23 +426,24 @@ def main_menu():
 
         input("\nPress any key to continue...")
 
-
 def advanced_menu():
     while True:
         show_advanced_menu()
         adv_choice = input("Select an advanced option: ")
 
-        if adv_choice == "1":
+        if adv_choice == '1':
             create_update_workflow()
-        elif adv_choice == "2":
+        elif adv_choice == '2':
             run_tests()
-        elif adv_choice == "3":
+        elif adv_choice == '3':
             lint_format_code()
-        elif adv_choice == "4":
+        elif adv_choice == '4':
             check_update_dependencies()
-        elif adv_choice == "5":
+        elif adv_choice == '5':
             generate_start_command()
-        elif adv_choice == "6":
+        elif adv_choice == '6':
+            reconfigure_setup_py()
+        elif adv_choice == '7':
             break
         else:
             print("❌ Invalid option, please try again.")
