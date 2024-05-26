@@ -93,6 +93,18 @@ def create_setup_py():
     author_email = input("Enter the author's email: ")
     description = input("Enter the package description: ")
     url = input("Enter the package URL: ")
+    entry_point = input("Enter the entry point for console scripts (leave blank if not applicable): ")
+
+    if entry_point:
+        entry_points = f"""
+    entry_points={{
+        'console_scripts': [
+            '{entry_point}',
+        ],
+    }},
+"""
+    else:
+        entry_points = ""
 
     setup_contents = f"""
 from setuptools import setup, find_packages
@@ -115,12 +127,7 @@ setup(
         'pytest',
         'pip-upgrader',
     ],
-    entry_points={{
-        'console_scripts': [
-            '{name}={name}.cli:main',
-        ],
-    }},
-    author='{author}',
+{entry_points}    author='{author}',
     author_email='{author_email}',
     description='{description}',
     long_description=long_description,
