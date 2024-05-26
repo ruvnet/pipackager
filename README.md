@@ -9,6 +9,23 @@
 Created by rUv
 ```
 
+```
+***********************************
+*        PyPI Package Manager     *
+*              by rUv             *
+***********************************
+1. Initial Setup
+2. Clean old distributions
+3. Build new distributions
+4. Upload distributions to PyPI
+5. Increment version number (patch)
+6. Increment version number (minor)
+7. Increment version number (major)
+8. Advanced options
+9. Help
+10. Exit
+Select an option: 
+```
 
 `pipackager` is a comprehensive tool designed to manage your PyPI package, simplifying tasks such as cleaning old distributions, building new ones, uploading to PyPI, version incrementing, and more.
 
