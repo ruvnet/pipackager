@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="pipackager",
-    version="0.4.6",
+    version="0.4.7",
     packages=find_packages(),
     install_requires=[
         "twine",
@@ -28,7 +28,7 @@ setup(
     },
     author="rUv",
     author_email="your-email@example.com",
-    description="A tool to manage your PyPI package.",
+    description="pipackager is a comprehensive tool designed to manage your PyPI package, simplifying tasks such as cleaning old distributions, building new ones, uploading to PyPI, version incrementing, and more.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ruvnet/pipackager",
